@@ -1,0 +1,18 @@
+# Ignore everything
+*
+
+# Whitelist anything that's a directory
+!*/
+
+# ignore certain directory
+
+# And all the file types I'm interested in.
+!.gitignore
+!*.py
+!*.cpp
+!*.h
+!*.sh
+!*.ipynb
+!*.md
+
+.ipynb_checkpoints
