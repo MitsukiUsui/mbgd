@@ -16,7 +16,7 @@ if __name__=="__main__":
 		if isinstance(row["Gene"],str):
 			lst.append(row["Gene"])
 		else:
-			lst.append("Gene{}".format(row["ClusterID"]))
+			lst.append("Family{}".format(row["ClusterID"]))
 	cluster_df["Family"]=lst
 
 	#filepath="ecoli_cluster.tab.new"
