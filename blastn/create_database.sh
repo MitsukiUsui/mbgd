@@ -1,6 +1,6 @@
 IFS=$'\n'
 
-for strain in `cat ../preprocess/strain.list`
+for strain in `cat ../preprocess/strain.lst`
 do
 	inFilepath=/data/mitsuki/data/mbgd/dnaseq/${strain}.dnaseq
 	dbName=~/altorf/mbgd/blastn/db/${strain}
