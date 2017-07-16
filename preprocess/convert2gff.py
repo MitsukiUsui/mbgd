@@ -1,9 +1,9 @@
 import pandas as pd
 
-def main():
-    species_lst=[s.strip() for s in open("species.list", 'r').readlines()]
-    for species in species_lst:
-        filepath="/data/mitsuki/data/mbgd/gene/{}.gene".format(species)
+def main(strainFilepath):
+    strain_lst=[s.strip() for s in open(strainFilepath, 'r').readlines()]
+    for strain in strain_lst:
+        filepath="/data/mitsuki/data/mbgd/gene/{}.gene".format(strain)
         gene_df=pd.read_csv(filepath, delimiter='\t', header=None)
         
         out_df=pd.DataFrame(index=gene_df.index, columns=["seqname", "source", "feature", "start", "end", "score", "strand", "frame", "attribute"])
@@ -18,8 +18,8 @@ def main():
         out_df["frame"]="."
         out_df["attribute"]="name "+gene_df[16]+";gene_name "+gene_df[1].fillna('')+';description '+gene_df[13].fillna('')
 
-        outFilepath="/data/mitsuki/data/mbgd/gff/{}.gff".format(species)
+        outFilepath="/data/mitsuki/data/mbgd/gff/{}.gff".format(strain)
         out_df.to_csv(outFilepath, index=False, header=None, sep='\t')
     
 if __name__=="__main__":
-    main()
+    main("strain.lst")
