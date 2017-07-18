@@ -20,9 +20,9 @@ def extract_sequence(orfId, dtype):
     return result
 
 
-def main(strainFilepath):
+def main(strainFilepath, clusterFilepath):
     strain_lst=[s.strip() for s in open(strainFilepath, 'r').readlines()]
-    df=pd.read_csv("../preprocess/sampled_cluster.csv")
+    df=pd.read_csv(clusterFilepath)
     pattern = r"([^()]+)(\([0-9]+\))?"
     r=re.compile(pattern)
 
@@ -30,15 +30,16 @@ def main(strainFilepath):
         if key%10==0:
             print("PROCESSING {}".format(key))
 
-        outFilepath="./query/{}.fna".format(row["Family"])
+        outFilepath="./tmp/{}.fna".format(row["Family"])
         with open(outFilepath, 'w') as f:
             for k,v in row[strain_lst].dropna().iteritems():
                 for orfId in v.split():
                     orfId=r.findall(orfId)[0][0]
                     header='>'+orfId
                     f.write(header+'\n')
-                    f.write(extract_sequence(orfId, dtype="geneseq")+'\n')
+                    f.write(extract_sequence(orfId, dtype="proteinseq")+'\n')
 
 
 if __name__=="__main__":
-    main("../preprocess/strain.lst")
+    #main("../preprocess/strain.lst", "../preprocess/sampled_cluster.csv")
+    main("../preprocess/strain.lst", "../preprocess/family.csv")
