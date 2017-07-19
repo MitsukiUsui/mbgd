@@ -7,9 +7,9 @@ def main(clusterFilepath, strainFilepath):
 
     for _,row in cluster_df.iterrows():
         msk=list(row[strain_lst].isnull())# True if the strain does not have the family
-        for i in range(len(strain_lst)):
+        for i, strain in enumerate(strain_lst):
             if msk[i]:
-                cmd="/home/mitsuki/altorf/mbgd/blastn/sge_blastn_args.sh {} {}".format(strain_lst[i],row["family"])
+                cmd="/home/mitsuki/altorf/mbgd/blastn/sge_blastn_args.sh {} {}".format(strain,row["family"])
                 print(cmd)
                 subprocess.check_call(cmd.strip().split(' '))
             
