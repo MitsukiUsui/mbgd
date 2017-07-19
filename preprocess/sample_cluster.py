@@ -45,11 +45,11 @@ def main(clusterFilepath, strainFilepath, sampledFilepath):
             
     out_df=pd.DataFrame(dct_lst)
     out_df=out_df[list(cluster_df.columns)+["num_query"]]
-    out_df.to_csv(sampledFilepath,index=False)
+    out_df.to_csv(sampledFilepath,index=False, sep='\t')
     
 
 if __name__=="__main__":
     clusterFilepath="/home/mitsuki/altorf/mbgd/data/ecoli_cluster.tab.mr"
     strainFilepath="/home/mitsuki/altorf/mbgd/data/strain.lst"
-    sampledFilepath="/home/mitsuki/altorf/mbgd/data/sampled_cluster.csv"
+    sampledFilepath="/home/mitsuki/altorf/mbgd/data/sampled_cluster.tab"
     main(clusterFilepath, strainFilepath, sampledFilepath)
