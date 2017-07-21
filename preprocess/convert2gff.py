@@ -22,4 +22,5 @@ def main(strainFilepath):
         out_df.to_csv(outFilepath, index=False, header=None, sep='\t')
     
 if __name__=="__main__":
-    main("strain.lst")
+    strainFilepath="/home/mitsuki/altorf/mbgd/data/strain.lst"
+    main(strainFilepath)
