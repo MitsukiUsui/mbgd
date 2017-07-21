@@ -11,7 +11,7 @@ def main(allFilepath, strainFilepath):
         for _,row in strain_df.iterrows():
             dct={}
             dct["chrom"]=row["sseqid"]
-            dct["chromStart"]=min(row["sstart"], row["send"])
+            dct["chromStart"]=min(row["sstart"], row["send"])-1#-1 to 0 origin [start,end) format
             dct["chromEnd"]=max(row["sstart"], row["send"])
 
             dct["name"]="{0}:{1}".format(row["qseqid"].split(':')[0], row["family"])
