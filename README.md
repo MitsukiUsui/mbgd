@@ -13,7 +13,7 @@ Follow this flow from top to bottom. For further information, please refer to RE
 ### analize
 * analize
 
-## Data
+## Input Data
 MBGD Ortholog Cluster Table with corresponding complete genomes & their annotations.
 
 ### cluster.tab
@@ -23,5 +23,12 @@ MBGD Ortholog Cluster Table with corresponding complete genomes & their annotati
 
 ### mbgd_2016-01_gene
 annotation file. "from1" & "to1" columns corresponds to [first, last] position.
+
+## visualizatio by IGV
+0. copies .dnaseq
+0. gets .gff by ./preprocess/convert2gff.py
+0. gets .igv by MitsukiUsui/genome/patternanalyze/stop_codon_igv.py
+0. gets .bed by ./blastn/convert2bed.py
+0. gets .bat by ./analyze/convert2bat.ipynb if needed
 
 
