@@ -5,6 +5,7 @@
 !*/
 
 # ignore certain directory
+test/
 
 # And all the file types I'm interested in.
 !.gitignore

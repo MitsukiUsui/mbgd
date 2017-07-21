@@ -1,10 +1,10 @@
 import pandas as pd
 import math
 
-def main():
-    strainFilepath="../preprocess/strain.lst"
+def main(clusterFilepath, strainFilepath):
+    cluster_df=pd.read_csv(clusterFilepath, delimiter='\t')
     strain_lst=[s.strip() for s in open(strainFilepath, 'r').readlines()]
-    cluster_df=pd.read_csv("../preprocess/sampled_cluster.csv")
+
     family_lst=list(cluster_df["Family"])
     
     for strain in strain_lst:
@@ -38,5 +38,6 @@ def main():
         out_df.to_csv(outFilepath, sep='\t', index=False, header=None, mode='a')
     
 if __name__=="__main__":
-    main()
-    
+    clusterFilepath="/home/mitsuki/altorf/mbgd/data/sampled_cluster.tab"
+    strainFilepath="/home/mitsuki/altorf/mbgd/data/strain.lst"
+    main(clusterFilepath, strainFilepath)
