@@ -1,4 +1,5 @@
 import pandas as pd
+import math
 
 def main():
     allFilepath="../blastn/out/all.csv"
@@ -68,14 +69,22 @@ def main():
                 dct["region_id"]=k[0]
                 dct["chr_name"]=chrname
                 dct["cds_name"]=k[1]
-                dct["first"]=v["first"]
-                dct["last"]=v["last"]
+                dct["ofirst"]=v["first"]
+                dct["olast"]=v["last"]
+                
+                row=gene_df[gene_df[1]==dct["cds_name"]].iloc[0,:]
+                if row[5]==1:#if cds is defined in + strand
+                    dct["sfirst_pro"]=math.ceil((dct["ofirst"]-row[3])/3)
+                    dct["slast_pro"]=math.floor((dct["olast"]-row[3])/3)
+                else:
+                    dct["sfirst_pro"]=math.ceil((row[4]-dct["olast"])/3)
+                    dct["slast_pro"]=math.floor((row[4]-dct["ofirst"])/3)
                 dct_lst.append(dct)
             print("\tfound {} overlaps".format(len(overlap_dctdct)))
                 
     overlap_df=pd.DataFrame(dct_lst)
-    overlap_df=overlap_df[["region_id", "chr_name", "cds_name", "first", "last"]]
-    overlapFilepath="overlap.csv"
+    overlap_df=overlap_df[["region_id", "chr_name", "ofirst", "olast", "cds_name", "sfirst_pro", "slast_pro"]]
+    overlapFilepath="./out/overlap.csv"
     overlap_df.to_csv(overlapFilepath, index=False)
     print("DONE: {} overlaps in {}".format(overlap_df.shape[0], overlapFilepath))
 
