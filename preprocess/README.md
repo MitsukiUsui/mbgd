@@ -1,10 +1,12 @@
 ## details
 
 ### flow
+
 0. wget.sh
- * data acquisition
+    * data acquisition
 0. split.sh
- * divides `mbgd_2016-01_gene` by genomes into `/gene/${strain}.gene` files
+    * divides `mbgd_2016-01_gene` by genomes into `/gene/${strain}.gene` files
+
 0. add_family_cluster.py
  * adds unique "family" column to Ortholog Table
 0. add_family_gene.py
