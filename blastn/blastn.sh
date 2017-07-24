@@ -4,7 +4,7 @@ strain=${1}
 family=${2}
 
 dbName=${dir}/db/${strain}
-queryFilepath=${dir}/query/${family}.fna
+queryFilepath=/data/mitsuki/data/mbgd/family/geneseq/${family}.geneseq
 outFilepath=${dir}/result/${strain}_${family}.tab
 
 blastn -db ${dbName}\
