@@ -29,6 +29,7 @@ if __name__=="__main__":
 				counter_dct[name]-=1
 		else:
 			lst.append("family{}".format(row["ClusterID"]))
+	lst=[s.replace('/','_') for s in lst]
 	cluster_df["family"]=lst
 
 	outFilepath="~/altorf/mbgd/data/ecoli_cluster.tab.mr"
