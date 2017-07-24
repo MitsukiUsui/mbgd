@@ -11,7 +11,7 @@ def main(strainFilepath):
         
         dtype_lst=["geneseq","proteinseq"]
         for dtype in dtype_lst:
-            seqFilepath="/data/mitsuki/data/mbgd/{0}/ecg.{0}".format(dtype)
+            seqFilepath="/data/mitsuki/data/mbgd/{0}/{1}.{0}".format(dtype,strain)
             name_lst=[]
             seqRec_lst=[]
             for rec in SeqIO.parse(seqFilepath, "fasta"):
@@ -20,6 +20,8 @@ def main(strainFilepath):
 
             _df=pd.DataFrame(index=range(len(name_lst)))
             _df[1]=name_lst
+            
+            assert len(set(gene_df[1]))==gene_df.shape[0]
             df=pd.merge(_df, gene_df[[1,16]], on=1, how="left")
 
             for key,row in df.iterrows():
