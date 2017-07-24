@@ -86,6 +86,7 @@ def main():
                 dct["chr_name"]=chrname
                 dct["ofirst"]=v["ofirst"]
                 dct["olast"]=v["olast"]
+                dct["olength"]=v["olast"]-v["ofirst"]+1
 
                 #calc sbjct first and last pos (gene, protein)
                 row=gene_df[gene_df[1]==dct["cds_name"]].iloc[0,:]
@@ -103,7 +104,7 @@ def main():
             print("\tfound {} overlaps".format(len(overlap_dctdct)))
                 
     overlap_df=pd.DataFrame(dct_lst)
-    overlap_df=overlap_df[["region_id", "chr_name", "ofirst", "olast", "cds_name","cds_strand", "sstart_gen", "send_gen", "sstart_pro", "send_pro"]]
+    overlap_df=overlap_df[["region_id", "chr_name", "ofirst", "olast", "olength", "cds_name","cds_strand", "sstart_gen", "send_gen", "sstart_pro", "send_pro"]]
     overlapFilepath="./out/overlap.csv"
     overlap_df.to_csv(overlapFilepath, index=False)
     print("DONE: {} overlaps in {}".format(overlap_df.shape[0], overlapFilepath))
