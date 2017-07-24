@@ -15,7 +15,7 @@
 
 
 ### util
-convert2gff.py
+* convert2gff.py
     * converts .gene to .gff file
-sample_cluster.py
+* sample_cluster.py
     * samples Ortholog Cluster Table to subsets.
