@@ -8,7 +8,8 @@ from Bio import pairwise2
 from Bio.Seq import Seq
 from Bio.SubsMat import MatrixInfo as matlist
 
-def extract_sequence(orfId, start=None, end=None, dtype="geneseq"):
+
+def extract_sequence(orfId, start=None, end=None, dtype="geneseq", family=None):
 	"""
 	argument:
 		orfId...ecg:E2348C_1809
@@ -16,7 +17,12 @@ def extract_sequence(orfId, start=None, end=None, dtype="geneseq"):
 	"""
 	
 	dataDir="/data/mitsuki/data/mbgd/"+dtype
-	cmd="/home/mitsuki/usr/bin/fatt extract --seq {0} {1}/{2}.{3}".format(orfId, dataDir, orfId.split(':')[0], dtype)
+	if family is None:
+		seqFilepath="/data/mitsuki/data/mbgd/{0}/{1}.{0}".format(dtype, orfId.split(':')[0])
+	else:
+		seqFilepath="/data/mitsuki/data/mbgd/family/{0}/{1}.{0}".format(dtype, family)
+	
+	cmd="/home/mitsuki/usr/bin/fatt extract --seq {0} {1}".format(orfId, seqFilepath)
 	result=subprocess.check_output(cmd.strip().split(' ')).decode('utf-8')
 	result=''.join(result.split('\n')[1:])
 	
@@ -88,7 +94,7 @@ def main(strain):
 	scoreGen_lst=[]
 	scorePro_lst=[]
 
-	print("START {} alignments".format(merged_df.shape[0]))
+	print("TOTAL {} alignments".format(merged_df.shape[0]))
 	with open(logFilepath, 'w') as f:
 		for key,row in merged_df.iterrows():
 			if key%100==0:
@@ -102,7 +108,7 @@ def main(strain):
 				
 				#geneseq alignment
 				qseq_gen=extract_sequence(row["qseqid"], 
-										  row["qstart_gen"], row["qend_gen"], dtype="geneseq")
+										  row["qstart_gen"], row["qend_gen"], dtype="geneseq", family=row["qfamily"])
 				sseq_gen=extract_sequence(row["chr_name"].split(':')[0]+':'+row["cds_name"],
 										  row["sstart_gen"], row["send_gen"], dtype="geneseq")
 				if row["hit_strand"]*row["cds_strand"]==1:
@@ -118,7 +124,7 @@ def main(strain):
 
 				#proteinseq alignment
 				qseq_pro=extract_sequence(row["qseqid"], 
-										  row["qstart_pro"], row["qend_pro"], dtype="proteinseq")
+										  row["qstart_pro"], row["qend_pro"], dtype="proteinseq", family=row["qfamily"])
 				sseq_pro=extract_sequence(row["chr_name"].split(':')[0]+':'+row["cds_name"],
 										  row["sstart_pro"], row["send_pro"], dtype="proteinseq")
 				alns_pro=pairwise2.align.globalds(qseq_pro, sseq_pro, matrix, -10, -0.5)

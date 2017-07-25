@@ -86,9 +86,11 @@ def main(strain):
 			dct["olast"]=v["olast"]
 			dct["olength"]=v["olast"]-v["ofirst"]+1
 
-			#calc sbjct first and last pos (gene, protein)
 			row=gene_df[gene_df[1]==dct["cds_name"]].iloc[0,:]
 			dct["cds_strand"]=row[5]
+			dct["sfamily"]=row[16]
+			
+			#calc sbjct start and end pos (gene, protein)
 			if dct["cds_strand"]==1:
 				dct["sstart_gen"]=dct["ofirst"]-row[3]
 				dct["send_gen"]=dct["olast"]-row[3]+1
@@ -103,7 +105,7 @@ def main(strain):
 		
 
 	overlap_df=pd.DataFrame(dct_lst)
-	overlap_df=overlap_df[["region_id", "chr_name", "ofirst", "olast", "olength", "cds_name","cds_strand", "sstart_gen", "send_gen", "sstart_pro", "send_pro"]]
+	overlap_df=overlap_df[["region_id", "chr_name", "ofirst", "olast", "olength","sfamily", "cds_name","cds_strand", "sstart_gen", "send_gen", "sstart_pro", "send_pro"]]
 	overlapFilepath="/home/mitsuki/altorf/mbgd/analyze/out/{}_ovr.csv".format(strain)
 	overlap_df.to_csv(overlapFilepath, index=False)
 	print("DONE: {} overlaps in {}".format(overlap_df.shape[0], overlapFilepath))
