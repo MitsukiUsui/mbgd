@@ -37,10 +37,8 @@ def main(clusterFilepath, strainFilepath):
 		msk=list(row[strain_lst].isnull())# True if the strain does not have the family
 		size=len(strain_lst)-np.sum(msk)
 		if 0<size and size<len(strain_lst):
-			familyCount+=1
 			for i, strain in enumerate(strain_lst):
 				if msk[i]:
-					jobCount+=1
 					cmd="/home/mitsuki/altorf/mbgd/blastn/uge_blastn_args.sh {} {}".format(strain,row["family"])
 					subprocess.check_call(cmd.strip().split(' '))
 
@@ -48,6 +46,6 @@ if __name__=="__main__":
 	#clusterFilepath="/home/mitsuki/altorf/mbgd/data/sampled_cluster.tab"
 	clusterFilepath="/home/mitsuki/altorf/mbgd/data/ecoli_cluster.tab.mr"
 	strainFilepath="/home/mitsuki/altorf/mbgd/data/strain.lst"
-	#main(clusterFilepath, strainFilepath)
-	check(clusterFilepath, strainFilepath)
+	main(clusterFilepath, strainFilepath)
+	#check(clusterFilepath, strainFilepath)
 			

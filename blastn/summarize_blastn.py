@@ -11,7 +11,7 @@ def output_count(cluster_df, strain_lst, countFilepath):
 		msk=list(row[strain_lst].isnull())# True if the strain does not have the family
 		for i, strain in enumerate(strain_lst):
 			if msk[i]:
-				filepath="./arxiv/result/{0}_{1}.tab".format(strain,row["family"])
+				filepath="./result/{0}_{1}.tab".format(strain,row["family"])
 				dct[strain]=len(open(filepath, 'r').readlines())
 			else:
 				dct[strain]=-1 
@@ -30,7 +30,7 @@ def output_strain(strain_lst, family_lst):
 		dct_lst=[]
 
 		for family in family_lst:
-			filepath="./arxiv/result/{0}_{1}.tab".format(strain,family)
+			filepath="./result/{0}_{1}.tab".format(strain,family)
 			try:
 				if len(open(filepath, 'r').readlines())>0:
 					df=pd.read_csv(filepath,delimiter='\t', header=None)
@@ -54,14 +54,14 @@ def output_strain(strain_lst, family_lst):
 	
 
 if __name__=="__main__":
-	clusterFilepath="/home/mitsuki/altorf/mbgd/data/sampled_cluster.tab"
+	clusterFilepath="/home/mitsuki/altorf/mbgd/data/ecoli_cluster.tab.mr"
 	strainFilepath="/home/mitsuki/altorf/mbgd/data/strain.lst"
    
 	strain_lst=[s.strip() for s in open(strainFilepath, 'r').readlines()]
-	cluster_df=pd.read_csv(clusterFilepath, delimiter='\t')
+	cluster_df=pd.read_csv(clusterFilepath, delimiter='\t', dtype="object")
 
 	countFilepath="./out/count.csv"
-	output_count(cluster_df, strain_lst, countFilepath)
+	#output_count(cluster_df, strain_lst, countFilepath)
 
 	family_lst=list(cluster_df["family"])
 	output_strain(strain_lst,family_lst)

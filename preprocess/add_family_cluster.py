@@ -25,7 +25,7 @@ if __name__=="__main__":
 			if counter_dct[name]==-1:
 				lst.append(name)
 			else:
-				lst.append("{}{}".format(name,counter_dct[name]))
+				lst.append("{}#{}".format(name,counter_dct[name]))
 				counter_dct[name]-=1
 		else:
 			lst.append("family{}".format(row["ClusterID"]))
