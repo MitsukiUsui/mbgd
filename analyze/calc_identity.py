@@ -1,3 +1,5 @@
+#!/home/mitsuki/.pyenv/versions/anaconda3-4.3.1/bin/python
+
 import pandas as pd
 import numpy as np
 import sys
@@ -14,7 +16,7 @@ def extract_sequence(orfId, start=None, end=None, dtype="geneseq"):
 	"""
 	
 	dataDir="/data/mitsuki/data/mbgd/"+dtype
-	cmd="fatt extract --seq {0} {1}/{2}.{3}".format(orfId, dataDir, orfId.split(':')[0], dtype)
+	cmd="/home/mitsuki/usr/bin/fatt extract --seq {0} {1}/{2}.{3}".format(orfId, dataDir, orfId.split(':')[0], dtype)
 	result=subprocess.check_output(cmd.strip().split(' ')).decode('utf-8')
 	result=''.join(result.split('\n')[1:])
 	
@@ -39,13 +41,15 @@ def extract_sequence(orfId, start=None, end=None, dtype="geneseq"):
 				end=min(len(result),end)
 		return Seq(result[start:end])
 
+def main(strain):
+	strainFilepath =  "/home/mitsuki/altorf/mbgd/blastn/out/{}.csv".format(strain)
+	overlapFilepath = "/home/mitsuki/altorf/mbgd/analyze/out/{}_ovr.csv".format(strain)
+	logFilepath =     "/home/mitsuki/altorf/mbgd/analyze/out/{}_log.csv".format(strain)
+	outFilepath =     "/home/mitsuki/altorf/mbgd/analyze/out/{}_out.csv".format(strain)
 
-def main(logFilepath):
-	allFilepath="../blastn/out/all.csv"
-	all_df=pd.read_csv(allFilepath)
-	overlapFilepath="./out/overlap.csv"
+	strain_df=pd.read_csv(strainFilepath)
 	overlap_df=pd.read_csv(overlapFilepath)
-	merged_df=pd.merge(overlap_df, all_df, how="left", on="region_id")
+	merged_df=pd.merge(overlap_df, strain_df, how="left", on="region_id")
 	
 	merged_df["hit_strand"]=1
 	merged_df.loc[(merged_df["sstart"]>merged_df["send"]), "hit_strand"]=-1
@@ -125,9 +129,9 @@ def main(logFilepath):
 				f.write(str(scorePro_lst[-1])+'\n\n')
 	merged_df["score_gen"]=scoreGen_lst
 	merged_df["score_pro"]=scorePro_lst
-	merged_df.to_csv("./out/merged.csv",index=False)
+	merged_df.to_csv(outFilepath,index=False)
 
 if __name__=="__main__":
-	logFilepath="log"
-	main(logFilepath)
+	strain=sys.argv[1]
+	main(strain)
 	
