@@ -57,9 +57,6 @@ def main(strain):
 	overlap_df=pd.read_csv(overlapFilepath)
 	merged_df=pd.merge(overlap_df, strain_df, how="left", on="region_id")
 	
-	merged_df["hit_strand"]=1
-	merged_df.loc[(merged_df["sstart"]>merged_df["send"]), "hit_strand"]=-1
-
 	###
 	# 1. calcurate the relative position of overlapping region to blastn hit, denoted by start_per, end_per each
 	###

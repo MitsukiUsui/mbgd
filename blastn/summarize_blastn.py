@@ -39,7 +39,11 @@ def output_strain(strain_lst, family_lst):
 						dct["qfamily"]=family
 						dct["qstrain"]=row[0].split(':')[0]
 						dct["sstrain"]=row[1].split(':')[0]
-
+						if row[8]<row[9]:
+							dct["hit_strand"]=1
+						else:
+							dct["hit_strand"]=-1
+						
 						for i,column in enumerate(columns_lst):
 							dct[column]=row[i]
 						dct_lst.append(dct)
@@ -47,7 +51,7 @@ def output_strain(strain_lst, family_lst):
 				pass
 		
 		strain_df=pd.DataFrame(dct_lst)
-		strain_df=strain_df[["qfamily", "qstrain", "sstrain"]+columns_lst]
+		strain_df=strain_df[["qfamily", "qstrain", "sstrain"]+columns_lst+["hit_strand"]]
 		strain_df.index.name="region_id"
 		strain_df.to_csv(strainFilepath)
 		print("DONE integration to {}".format(strainFilepath))
