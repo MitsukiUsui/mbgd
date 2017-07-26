@@ -3,7 +3,7 @@ import numpy as np
 import subprocess
 
 def check(clusterFilepath, strainFilepath):
-	cluster_df=pd.read_csv(clusterFilepath, delimiter='\t', dtype="object")
+	cluster_df=pd.read_csv(clusterFilepath, dtype="object")
 	strain_lst=[s.strip() for s in open(strainFilepath, 'r').readlines()]
 
 	familyCount=0
@@ -30,7 +30,7 @@ def check(clusterFilepath, strainFilepath):
 	print("\tjobs:   {}/{}".format(resultCount, jobCount))
 
 def main(clusterFilepath, strainFilepath):
-	cluster_df=pd.read_csv(clusterFilepath, delimiter='\t', dtype="object")
+	cluster_df=pd.read_csv(clusterFilepath, dtype="object")
 	strain_lst=[s.strip() for s in open(strainFilepath, 'r').readlines()]
 
 	for _,row in cluster_df.iterrows():
@@ -43,9 +43,8 @@ def main(clusterFilepath, strainFilepath):
 					subprocess.check_call(cmd.strip().split(' '))
 
 if __name__=="__main__":
-	#clusterFilepath="/home/mitsuki/altorf/mbgd/data/sampled_cluster.tab"
-	clusterFilepath="/home/mitsuki/altorf/mbgd/data/ecoli_cluster.tab.mr"
+	clusterFilepath="/home/mitsuki/altorf/mbgd/data/test_cluster.csv"
 	strainFilepath="/home/mitsuki/altorf/mbgd/data/strain.lst"
-	main(clusterFilepath, strainFilepath)
-	#check(clusterFilepath, strainFilepath)
+	#main(clusterFilepath, strainFilepath)
+	check(clusterFilepath, strainFilepath)
 			

@@ -58,14 +58,14 @@ def output_strain(strain_lst, family_lst):
 	
 
 if __name__=="__main__":
-	clusterFilepath="/home/mitsuki/altorf/mbgd/data/ecoli_cluster.tab.mr"
+	clusterFilepath="/home/mitsuki/altorf/mbgd/data/test_cluster.csv"
 	strainFilepath="/home/mitsuki/altorf/mbgd/data/strain.lst"
    
 	strain_lst=[s.strip() for s in open(strainFilepath, 'r').readlines()]
-	cluster_df=pd.read_csv(clusterFilepath, delimiter='\t', dtype="object")
+	cluster_df=pd.read_csv(clusterFilepath, dtype="object")
 
-	countFilepath="./out/count.csv"
-	#output_count(cluster_df, strain_lst, countFilepath)
+	countFilepath="./out/test_count.csv"
+	output_count(cluster_df, strain_lst, countFilepath)
 
 	family_lst=list(cluster_df["family"])
-	output_strain(strain_lst,family_lst)
+	#output_strain(strain_lst,family_lst)
