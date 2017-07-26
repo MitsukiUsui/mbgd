@@ -1,7 +1,7 @@
 ## details
 
 ### flow
-
+#### only once
 0. wget.sh
     * data acquisition
 0. split.sh
@@ -13,9 +13,9 @@
 0. distribute_family.py
     * distributes geneseq & proteinseq by its family
 
+#### every time with new strain.lst
+0. format_cluster.py
 
 ### util
 * convert2gff.py
     * converts .gene to .gff file
-* sample_cluster.py
-    * samples Ortholog Cluster Table to subsets.
