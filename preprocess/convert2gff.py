@@ -20,7 +20,8 @@ def main(strainFilepath):
 
         outFilepath="/data/mitsuki/data/mbgd/gff/{}.gff".format(strain)
         out_df.to_csv(outFilepath, index=False, header=None, sep='\t')
+        print("OUTPUT to {}".format(outFilepath))
     
 if __name__=="__main__":
-    strainFilepath="/home/mitsuki/altorf/mbgd/data/strain.lst"
+    strainFilepath="/home/mitsuki/altorf/mbgd/data/streptomyces/strain.lst"
     main(strainFilepath)

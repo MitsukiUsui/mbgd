@@ -22,7 +22,7 @@ def main(strainFilepath):
             _df[1]=name_lst
             
             assert len(set(gene_df[1]))==gene_df.shape[0]
-            df=pd.merge(_df, gene_df[[1,16]], on=1, how="left")
+            df=pd.merge(_df, gene_df[[1,16]], on=1, how="left")#connect index in seqRec_lst with family information in gene_df by using geneName as a key
 
             for key,row in df.iterrows():
                 seq=seqRec_lst[key]
@@ -35,5 +35,6 @@ def main(strainFilepath):
 
 
 if __name__=="__main__":
-	strainFilepath="/home/mitsuki/altorf/mbgd/data/strain.lst"
-	main(strainFilepath)
+    direc="../data/streptomyces"
+    strainFilepath=direc+"/strain.lst"
+    main(strainFilepath)
