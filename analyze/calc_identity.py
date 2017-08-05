@@ -16,12 +16,12 @@ def extract_sequence(orfId, start=None, end=None, dtype="geneseq", family=None):
         dtype...geneseq or proteinseq
     """
     
-    dataDir="/data/mitsuki/data/mbgd/"+dtype
     if family is None:
         seqFilepath="/data/mitsuki/data/mbgd/{0}/{1}.{0}".format(dtype, orfId.split(':')[0])
     else:
-        seqFilepath="/data/mitsuki/data/mbgd/family/ecoli/{0}/{1}.{0}".format(dtype, family)
-    
+        strain=orfId.split(':')[0]
+        seqFilepath="/data/mitsuki/data/mbgd/family/{0}/{1}/{1}_{2}.{0}".format(dtype, family, strain)
+
     cmd="/home/mitsuki/usr/bin/fatt extract --seq {0} {1}".format(orfId, seqFilepath)
     result=subprocess.check_output(cmd.strip().split(' ')).decode('utf-8')
     result=''.join(result.split('\n')[1:])
@@ -36,16 +36,10 @@ def extract_sequence(orfId, start=None, end=None, dtype="geneseq", family=None):
         else:
             start=max(0,start)
         
-        if end is None :
-            if dtype=="proteinseq":
-                end=len(result)-1
-            else:
-                end=len(result)
+        if end is None:
+            end=len(result)
         else:
-            if dtype=="proteinseq":
-                end=min(len(result)-1,end)
-            else:
-                end=min(len(result),end)
+            end=max(len(result),end)
         return Seq(result[start:end])
 
 def main(overlapFilepath, logFilepath):
@@ -87,6 +81,8 @@ def main(overlapFilepath, logFilepath):
                                           row["qstart_pro"], row["qend_pro"], dtype="proteinseq", family=row["qfamily"])
                 sseq_pro=extract_sequence(row["sorf_id"],
                                           row["sstart_pro"], row["send_pro"], dtype="proteinseq")
+                qseq_pro=str(qseq_pro).replace('*','X')
+                sseq_pro=str(sseq_pro).replace('*','X')
                 alns_pro=pairwise2.align.globalds(qseq_pro, sseq_pro, matrix, -10, -0.5)
                 scorePro_lst.append(alns_pro[0][2])
 
@@ -100,7 +96,7 @@ def main(overlapFilepath, logFilepath):
 
 if __name__=="__main__":
     strain=sys.argv[1]
-    overlapFilepath = "/home/mitsuki/altorf/mbgd/analyze/out/test_{}_ovr.csv".format(strain)
-    logFilepath =     "/home/mitsuki/altorf/mbgd/analyze/out/test_{}_ovr.fasta".format(strain)
+    overlapFilepath = "/home/mitsuki/altorf/mbgd/analyze/out/{}_ovr.csv".format(strain)
+    logFilepath =     "/home/mitsuki/altorf/mbgd/analyze/out/{}_ovr.fasta".format(strain)
     main(overlapFilepath, logFilepath)
     

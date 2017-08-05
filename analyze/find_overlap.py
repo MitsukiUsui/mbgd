@@ -169,7 +169,7 @@ def main(strain, hitFilepath, geneFilepath, overlapFilepath):
 
 if __name__=="__main__":
     strain=sys.argv[1]
-    hitFilepath="/home/mitsuki/altorf/mbgd/blastn/arxiv/ecoli/out/{}.csv".format(strain)
+    hitFilepath="/home/mitsuki/altorf/mbgd/blastn/out/{}.csv".format(strain)
     geneFilepath="/data/mitsuki/data/mbgd/gene/{}.gene".format(strain)
-    overlapFilepath="/home/mitsuki/altorf/mbgd/analyze/out/test_{}_ovr.csv".format(strain)
+    overlapFilepath="/home/mitsuki/altorf/mbgd/analyze/out/{}_ovr.csv".format(strain)
     main(strain,hitFilepath, geneFilepath, overlapFilepath)
