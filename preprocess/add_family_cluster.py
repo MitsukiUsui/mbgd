@@ -11,5 +11,5 @@ def main(filepath):
     print("OUTPUT to {}".format(filepath))
 
 if __name__=="__main__":
-    filepath="~/altorf/mbgd/data/streptomyces/streptomyces_cluster.tab"
+    filepath="~/altorf/mbgd/data/ecoli/ecoli_cluster.tab"
     main(filepath)

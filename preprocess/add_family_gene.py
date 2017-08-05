@@ -45,7 +45,7 @@ def main(clusterFilepath,strainFilepath):
               
 
 if __name__=="__main__":
-    direc="../data/streptomyces"
-    clusterFilepath=direc+"/streptomyces_cluster.tab"
+    direc="../data/ecoli"
+    clusterFilepath=direc+"/ecoli_cluster.tab"
     strainFilepath=direc+"/strain.lst"
     main(clusterFilepath, strainFilepath)

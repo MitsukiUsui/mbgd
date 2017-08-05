@@ -1,4 +1,5 @@
 import pandas as pd
+import os
 from Bio import SeqIO
 
 def main(strainFilepath):
@@ -29,12 +30,15 @@ def main(strainFilepath):
                 if isinstance(row[16],str):
                     family_lst=row[16].split(',')
                     for family in family_lst:
-                        outFilepath="/data/mitsuki/data/mbgd/family/{0}/{1}.{0}".format(dtype,family)
+                        outDirec="/data/mitsuki/data/mbgd/family/{0}/{1}".format(dtype, family)
+                        if not(os.path.exists(outDirec)):
+                            os.mkdir(outDirec)
+                        outFilename="/{0}_{1}.{2}".format(family, strain, dtype)
+                        outFilepath=outDirec+outFilename
                         with open(outFilepath, 'a') as f:
                             SeqIO.write(seq, f, "fasta")
 
-
 if __name__=="__main__":
-    direc="../data/streptomyces"
+    direc="../data/ecoli"
     strainFilepath=direc+"/strain.lst"
     main(strainFilepath)

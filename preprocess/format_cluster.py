@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy
 
-def read_ecoli_cluster(clusterFilepath):
+def read_cluster(clusterFilepath):
     cluster_df=pd.read_csv(clusterFilepath,delimiter='\t', dtype="object")
     int_lst=["ClusterID", "HomClusterID","Size"]
     cluster_df[int_lst]=cluster_df[int_lst].astype(int)
@@ -33,29 +33,31 @@ def format_cluster(cluster_df, strain_lst):
     return cluster_df
 
 
-def sample_cluster(cluster_df, numStrain, n=10):
+def sample_cluster(cluster_df, numStrain, n=10, step=1):
     df=pd.DataFrame(columns=cluster_df.columns, dtype=cluster_df.dtypes)
-    for i in range(1,numStrain):
+    for i in range(1,numStrain,step):
         filtered_df=cluster_df[cluster_df["lineage"]==i].sample(n=n, random_state=42)
         df=pd.concat([df, filtered_df])
     return df
 
 def main(clusterFilepath, strainFilepath, outFilepath, sample=False):
-    cluster_df=read_ecoli_cluster(clusterFilepath)
+    cluster_df=read_cluster(clusterFilepath)
     strain_lst=[s.strip() for s in open(strainFilepath, 'r').readlines()]
-    cluster_df=format_cluster(cluster_df, strain_lst)
-    if sample:
-        cluster_df=sample_cluster(cluster_df, len(strain_lst))  
     
+    #add lineage, num_query columns
+    cluster_df=format_cluster(cluster_df, strain_lst)
     cluster_df["lineage"]=cluster_df["lineage"].astype(int)
     cluster_df["num_query"]=cluster_df["num_query"].astype(int)
+    cluster_df=cluster_df[(cluster_df["lineage"]>1) & (cluster_df["lineage"]<len(strain_lst))]
+    if sample:
+        cluster_df=cluster_df.sample(n=100)
     cluster_df.to_csv(outFilepath, index=False)
     print("DONE output to {}".format(outFilepath))
 
 if __name__=="__main__":
-    direc="../data/streptomyces"
-    clusterFilepath=direc+"/streptomyces_cluster.tab"
+    direc="../data/ecoli"
+    clusterFilepath=direc+"/ecoli_cluster.tab"
     strainFilepath=direc+"/strain.lst"
-    outFilepath=direc+"/sampled_cluster.csv"
-    sample=True
+    outFilepath=direc+"/ecoli_cluster.csv"
+    sample=False
     main(clusterFilepath, strainFilepath, outFilepath, sample)
