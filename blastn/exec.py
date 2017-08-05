@@ -40,7 +40,6 @@ def main(lookupFilepath, strainFilepath):
 
 if __name__=="__main__":
     direc="../data/ecoli"
-    clusterFilepath=direc+"/sampled_cluster.csv"
     strainFilepath=direc+"/strain.lst"
     lookupFilepath="query.csv"
     main(lookupFilepath, strainFilepath)

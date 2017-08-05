@@ -1,12 +1,8 @@
+strain=${1}
 dir=/home/mitsuki/altorf/mbgd/blastn
-
-sstrain=${1}
-family=${2}
-qstrain=${3}
-
-dbName=${dir}/db/${sstrain}
-queryFilepath=/data/mitsuki/data/mbgd/family/geneseq/${family}/${family}_${qstrain}.geneseq
-outFilepath=${dir}/result/${sstrain}_${family}.tab
+dbName=${dir}/db/${strain}
+queryFilepath=${dir}/query/${strain}.query
+outFilepath=${dir}/result/${strain}.tab
 
 blastn -db ${dbName}\
 	   -query ${queryFilepath}\
