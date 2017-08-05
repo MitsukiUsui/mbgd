@@ -58,7 +58,7 @@ def output_strain(strain_lst, family_lst):
     
 
 if __name__=="__main__":
-    direc="../data/streptomyces"
+    direc="../data/ecoli"
     clusterFilepath=direc+"/sampled_cluster.csv"
     strainFilepath=direc+"/strain.lst"
    
@@ -66,7 +66,7 @@ if __name__=="__main__":
     cluster_df=pd.read_csv(clusterFilepath, dtype="object")
 
     countFilepath="./out/test_count.csv"
-    output_count(cluster_df, strain_lst, countFilepath)
+    #output_count(cluster_df, strain_lst, countFilepath)
 
     family_lst=list(cluster_df["family"])
     output_strain(strain_lst,family_lst)

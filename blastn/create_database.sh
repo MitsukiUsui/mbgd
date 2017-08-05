@@ -1,5 +1,5 @@
 IFS=$'\n'
-strainFilepath=../data/streptomyces/strain.lst
+strainFilepath=../data/ecoli/strain.lst
 for strain in `cat ${strainFilepath}`
 do
 	inFilepath=/data/mitsuki/data/mbgd/dnaseq/${strain}.dnaseq
