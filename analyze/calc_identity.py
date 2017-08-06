@@ -39,7 +39,7 @@ def extract_sequence(orfId, start=None, end=None, dtype="geneseq", family=None):
         if end is None:
             end=len(result)
         else:
-            end=max(len(result),end)
+            end=min(len(result),end)
         return Seq(result[start:end])
 
 def main(overlapFilepath, logFilepath):
