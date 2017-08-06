@@ -33,10 +33,13 @@ def main(clusterFilepath, strainFilepath, phbFilepath, outFilepath):
                 x = np.ma.array(distance_mat[sidx], mask=msk)
                 qidx=x.argmin()
                 assert distance_mat[sidx,qidx]>=0
-                
-                orfId=row[strain_lst[qidx]]
-                seqName=r.findall(orfId)[0][0]
-                dct[strain_lst[sidx]]=seqName
+              
+                #drop (num) notation from orfId
+                orfId_lst=row[strain_lst[qidx]].split(' ')
+                new_lst=[]
+                for orfId in orfId_lst:
+                    new_lst.append(r.findall(orfId)[0][0])
+                dct[strain_lst[sidx]]=' '.join(new_lst)
         dct_lst.append(dct)
     out_df=pd.DataFrame(dct_lst)
     out_df=out_df[["family"]+strain_lst]
