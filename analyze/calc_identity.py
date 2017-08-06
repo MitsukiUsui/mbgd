@@ -59,37 +59,41 @@ def main(overlapFilepath, logFilepath):
                 scoreDna_lst.append(0)
                 scorePro_lst.append(0)
             elif row["olength"]>=10:
+                try:
+                    #geneseq alignment
+                    qseq_dna=extract_sequence(row["qorf_id"], 
+                                              row["qstart_dna"], row["qend_dna"], dtype="geneseq", family=row["qfamily"])
+                    sseq_dna=extract_sequence(row["sorf_id"],
+                                              row["sstart_dna"], row["send_dna"], dtype="geneseq")
+                    if row["hit_strand"]*row["cds_strand"]==1:
+                        alns_dna=pairwise2.align.globalms(qseq_dna, sseq_dna, 2, -1, -.5, -.1)
+                    elif row["hit_strand"]*row["cds_strand"]==-1:
+                        alns_dna=pairwise2.align.globalms(qseq_dna, sseq_dna.reverse_complement(), 2, -1, -.5, -.1)
+                    scoreDna_lst.append(alns_dna[0][2])
+
+                    f.write(">{}:{}\n".format(key, "qseq_dna"))
+                    f.write(str(qseq_dna)+'\n')
+                    f.write(">{}:{}\n".format(key, "sseq_dna"))
+                    f.write(str(sseq_dna)+'\n')
                 
-                #geneseq alignment
-                qseq_dna=extract_sequence(row["qorf_id"], 
-                                          row["qstart_dna"], row["qend_dna"], dtype="geneseq", family=row["qfamily"])
-                sseq_dna=extract_sequence(row["sorf_id"],
-                                          row["sstart_dna"], row["send_dna"], dtype="geneseq")
-                if row["hit_strand"]*row["cds_strand"]==1:
-                    alns_dna=pairwise2.align.globalms(qseq_dna, sseq_dna, 2, -1, -.5, -.1)
-                elif row["hit_strand"]*row["cds_strand"]==-1:
-                    alns_dna=pairwise2.align.globalms(qseq_dna, sseq_dna.reverse_complement(), 2, -1, -.5, -.1)
-                scoreDna_lst.append(alns_dna[0][2])
+                    #proteinseq alignment
+                    qseq_pro=extract_sequence(row["qorf_id"], 
+                                              row["qstart_pro"], row["qend_pro"], dtype="proteinseq", family=row["qfamily"])
+                    sseq_pro=extract_sequence(row["sorf_id"],
+                                              row["sstart_pro"], row["send_pro"], dtype="proteinseq")
+                    qseq_pro=str(qseq_pro).replace('*','X')
+                    sseq_pro=str(sseq_pro).replace('*','X')
+                    alns_pro=pairwise2.align.globalds(qseq_pro, sseq_pro, matrix, -10, -0.5)
+                    scorePro_lst.append(alns_pro[0][2])
 
-                f.write(">{}:{}\n".format(key, "qseq_dna"))
-                f.write(str(qseq_dna)+'\n')
-                f.write(">{}:{}\n".format(key, "sseq_dna"))
-                f.write(str(sseq_dna)+'\n')
-            
-                #proteinseq alignment
-                qseq_pro=extract_sequence(row["qorf_id"], 
-                                          row["qstart_pro"], row["qend_pro"], dtype="proteinseq", family=row["qfamily"])
-                sseq_pro=extract_sequence(row["sorf_id"],
-                                          row["sstart_pro"], row["send_pro"], dtype="proteinseq")
-                qseq_pro=str(qseq_pro).replace('*','X')
-                sseq_pro=str(sseq_pro).replace('*','X')
-                alns_pro=pairwise2.align.globalds(qseq_pro, sseq_pro, matrix, -10, -0.5)
-                scorePro_lst.append(alns_pro[0][2])
-
-                f.write(">{}:{}\n".format(key, "qseq_pro"))
-                f.write(str(qseq_pro)+'\n')
-                f.write(">{}:{}\n".format(key, "sseq_pro"))
-                f.write(str(sseq_pro)+'\n')
+                    f.write(">{}:{}\n".format(key, "qseq_pro"))
+                    f.write(str(qseq_pro)+'\n')
+                    f.write(">{}:{}\n".format(key, "sseq_pro"))
+                    f.write(str(sseq_pro)+'\n')
+                except (IndexError, SystemError):
+                    scoreDna_lst.append(0)
+                    scorePro_lst.append(0)
+                    
     overlap_df["score_dna"]=scoreDna_lst
     overlap_df["score_pro"]=scorePro_lst
     overlap_df.to_csv(overlapFilepath)
