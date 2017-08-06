@@ -10,131 +10,97 @@ from Bio.SubsMat import MatrixInfo as matlist
 
 
 def extract_sequence(orfId, start=None, end=None, dtype="geneseq", family=None):
-	"""
-	argument:
-		orfId...ecg:E2348C_1809
-		dtype...geneseq or proteinseq
-	"""
-	
-	dataDir="/data/mitsuki/data/mbgd/"+dtype
-	if family is None:
-		seqFilepath="/data/mitsuki/data/mbgd/{0}/{1}.{0}".format(dtype, orfId.split(':')[0])
-	else:
-		seqFilepath="/data/mitsuki/data/mbgd/family/{0}/{1}.{0}".format(dtype, family)
-	
-	cmd="/home/mitsuki/usr/bin/fatt extract --seq {0} {1}".format(orfId, seqFilepath)
-	result=subprocess.check_output(cmd.strip().split(' ')).decode('utf-8')
-	result=''.join(result.split('\n')[1:])
-	
-	if result=='':
-		print("NOT FOUND: {}".format(orfId))
-		return None
-	else:
-		if start is None:
-			start=0
-		else:
-			start=max(0,start)
-		
-		if end is None :
-			if dtype=="proteinseq":
-				end=len(result)-1
-			else:
-				end=len(result)
-		else:
-			if dtype=="proteinseq":
-				end=min(len(result)-1,end)
-			else:
-				end=min(len(result),end)
-		return Seq(result[start:end])
+    """
+    argument:
+        orfId...ecg:E2348C_1809
+        dtype...geneseq or proteinseq
+    """
+    
+    if family is None:
+        seqFilepath="/data/mitsuki/data/mbgd/{0}/{1}.{0}".format(dtype, orfId.split(':')[0])
+    else:
+        strain=orfId.split(':')[0]
+        seqFilepath="/data/mitsuki/data/mbgd/family/{0}/{1}/{1}_{2}.{0}".format(dtype, family, strain)
 
-def main(strain):
-	strainFilepath =  "/home/mitsuki/altorf/mbgd/blastn/out/{}.csv".format(strain)
-	overlapFilepath = "/home/mitsuki/altorf/mbgd/analyze/out/{}_ovr.csv".format(strain)
-	logFilepath =     "/home/mitsuki/altorf/mbgd/analyze/out/{}_log.csv".format(strain)
-	outFilepath =     "/home/mitsuki/altorf/mbgd/analyze/out/{}_out.csv".format(strain)
+    cmd="/home/mitsuki/usr/bin/fatt extract --seq {0} {1}".format(orfId, seqFilepath)
+    result=subprocess.check_output(cmd.strip().split(' ')).decode('utf-8')
+    result=''.join(result.split('\n')[1:])
+    
+    if result=='':
+        print("NOT FOUND: {}".format(orfId))
+        print(seqFilepath)
+        return None
+    else:
+        if start is None:
+            start=0
+        else:
+            start=max(0,start)
+        
+        if end is None:
+            end=len(result)
+        else:
+            end=min(len(result),end)
+        return Seq(result[start:end])
 
-	strain_df=pd.read_csv(strainFilepath)
-	overlap_df=pd.read_csv(overlapFilepath)
-	merged_df=pd.merge(overlap_df, strain_df, how="left", on="region_id")
-	
-	###
-	# 1. calcurate the relative position of overlapping region to blastn hit, denoted by start_per, end_per each
-	###
-	tpl_lst=[]
-	for _,row in merged_df.iterrows():
-		length=abs(row["send"]-row["sstart"])
-		if row["hit_strand"]==1:
-			start_per=(row["ofirst"]-row["sstart"])/length
-			end_per=(row["olast"]-row["sstart"])/length
-		else:
-			start_per=(row["sstart"]-row["olast"])/length
-			end_per=(row["sstart"]-row["ofirst"])/length
-		tpl_lst.append((start_per,end_per))
-	merged_df["start_per"]=0
-	merged_df["end_per"]=0
-	merged_df[["start_per","end_per"]]=tpl_lst
-	
-	###
-	# 2. calculate qfirst_pro, qlast_pro
-	###
-	merged_df["qstart_gen"]=np.ceil(merged_df["qstart"]+(merged_df["qend"]-merged_df["qstart"])*merged_df["start_per"]).astype(int)
-	merged_df["qend_gen"] =np.floor(merged_df["qstart"]+(merged_df["qend"]-merged_df["qstart"])*merged_df["end_per"]).astype(int)
-	merged_df["qstart_pro"]=np.ceil(merged_df["qstart_gen"]/3).astype(int)
-	merged_df["qend_pro"]=np.floor(merged_df["qend_gen"]/3).astype(int)
-	
+def main(overlapFilepath, logFilepath):
+    overlap_df=pd.read_csv(overlapFilepath, index_col=0)
+    
+    # calc alignment score for geneseq & proteinseq
+    matrix = matlist.blosum62
+    scoreDna_lst=[]
+    scorePro_lst=[]
+    print("TOTAL {} alignments".format(overlap_df.shape[0]))
+    with open(logFilepath, 'w') as f:
+        for key,row in overlap_df.iterrows():
+            if key%100==0:
+                print("\t{}".format(key))
 
-	###
-	# 3. calc alignment score for geneseq & proteinseq
-	###
-	matrix = matlist.blosum62
-	
-	scoreGen_lst=[]
-	scorePro_lst=[]
+            if row["olength"]<10: #to short for alignment
+                scoreDna_lst.append(0)
+                scorePro_lst.append(0)
+            elif row["olength"]>=10:
+                try:
+                    #geneseq alignment
+                    qseq_dna=extract_sequence(row["qorf_id"], 
+                                              row["qstart_dna"], row["qend_dna"], dtype="geneseq", family=row["qfamily"])
+                    sseq_dna=extract_sequence(row["sorf_id"],
+                                              row["sstart_dna"], row["send_dna"], dtype="geneseq")
+                    if row["hit_strand"]*row["cds_strand"]==1:
+                        alns_dna=pairwise2.align.globalms(qseq_dna, sseq_dna, 2, -1, -.5, -.1)
+                    elif row["hit_strand"]*row["cds_strand"]==-1:
+                        alns_dna=pairwise2.align.globalms(qseq_dna, sseq_dna.reverse_complement(), 2, -1, -.5, -.1)
+                    scoreDna_lst.append(alns_dna[0][2])
 
-	print("TOTAL {} alignments".format(merged_df.shape[0]))
-	with open(logFilepath, 'w') as f:
-		for key,row in merged_df.iterrows():
-			if key%100==0:
-				print("\t{}".format(key))
-			
-			if row["olength"]<10: #to short for alignment
-				scoreGen_lst.append(0)
-				scorePro_lst.append(0)
-			elif row["olength"]>=10:
-				f.write("***{}***\n".format(key))
-				
-				#geneseq alignment
-				qseq_gen=extract_sequence(row["qseqid"], 
-										  row["qstart_gen"], row["qend_gen"], dtype="geneseq", family=row["qfamily"])
-				sseq_gen=extract_sequence(row["chr_name"].split(':')[0]+':'+row["cds_name"],
-										  row["sstart_gen"], row["send_gen"], dtype="geneseq")
-				if row["hit_strand"]*row["cds_strand"]==1:
-					alns_gen=pairwise2.align.globalms(qseq_gen, sseq_gen, 2, -1, -.5, -.1)
-				elif row["hit_strand"]*row["cds_strand"]==-1:
-					alns_gen=pairwise2.align.globalms(qseq_gen, sseq_gen.reverse_complement(), 2, -1, -.5, -.1)
-				scoreGen_lst.append(alns_gen[0][2])
+                    f.write(">{}:{}\n".format(key, "qseq_dna"))
+                    f.write(str(qseq_dna)+'\n')
+                    f.write(">{}:{}\n".format(key, "sseq_dna"))
+                    f.write(str(sseq_dna)+'\n')
+                
+                    #proteinseq alignment
+                    qseq_pro=extract_sequence(row["qorf_id"], 
+                                              row["qstart_pro"], row["qend_pro"], dtype="proteinseq", family=row["qfamily"])
+                    sseq_pro=extract_sequence(row["sorf_id"],
+                                              row["sstart_pro"], row["send_pro"], dtype="proteinseq")
+                    qseq_pro=str(qseq_pro).replace('*','X')
+                    sseq_pro=str(sseq_pro).replace('*','X')
+                    alns_pro=pairwise2.align.globalds(qseq_pro, sseq_pro, matrix, -10, -0.5)
+                    scorePro_lst.append(alns_pro[0][2])
 
-				f.write(str(qseq_gen)+'\n')
-				f.write(str(sseq_gen)+'\n')
-				f.write(str(scoreGen_lst[-1])+'\n')
-			
-
-				#proteinseq alignment
-				qseq_pro=extract_sequence(row["qseqid"], 
-										  row["qstart_pro"], row["qend_pro"], dtype="proteinseq", family=row["qfamily"])
-				sseq_pro=extract_sequence(row["chr_name"].split(':')[0]+':'+row["cds_name"],
-										  row["sstart_pro"], row["send_pro"], dtype="proteinseq")
-				alns_pro=pairwise2.align.globalds(qseq_pro, sseq_pro, matrix, -10, -0.5)
-				scorePro_lst.append(alns_pro[0][2])
-				
-				f.write(str(qseq_pro)+'\n')
-				f.write(str(sseq_pro)+'\n')
-				f.write(str(scorePro_lst[-1])+'\n\n')
-	merged_df["score_gen"]=scoreGen_lst
-	merged_df["score_pro"]=scorePro_lst
-	merged_df.to_csv(outFilepath,index=False)
+                    f.write(">{}:{}\n".format(key, "qseq_pro"))
+                    f.write(str(qseq_pro)+'\n')
+                    f.write(">{}:{}\n".format(key, "sseq_pro"))
+                    f.write(str(sseq_pro)+'\n')
+                except (IndexError, SystemError):
+                    scoreDna_lst.append(0)
+                    scorePro_lst.append(0)
+                    
+    overlap_df["score_dna"]=scoreDna_lst
+    overlap_df["score_pro"]=scorePro_lst
+    overlap_df.to_csv(overlapFilepath)
 
 if __name__=="__main__":
-	strain=sys.argv[1]
-	main(strain)
-	
+    strain=sys.argv[1]
+    overlapFilepath = "/home/mitsuki/altorf/mbgd/analyze/out/{}_ovr.csv".format(strain)
+    logFilepath =     "/home/mitsuki/altorf/mbgd/analyze/out/{}_ovr.fasta".format(strain)
+    main(overlapFilepath, logFilepath)
+    

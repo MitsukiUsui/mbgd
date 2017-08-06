@@ -1,11 +1,8 @@
-dir=/home/mitsuki/altorf/mbgd/blastn
-
 strain=${1}
-family=${2}
-
+dir=/home/mitsuki/altorf/mbgd/blastn
 dbName=${dir}/db/${strain}
-queryFilepath=/data/mitsuki/data/mbgd/family/geneseq/${family}.geneseq
-outFilepath=${dir}/result/${strain}_${family}.tab
+queryFilepath=${dir}/query/${strain}.query
+outFilepath=${dir}/result/${strain}.tab
 
 blastn -db ${dbName}\
 	   -query ${queryFilepath}\
@@ -13,11 +10,4 @@ blastn -db ${dbName}\
 	   -word_size 6\
 	   -evalue 1e-3\
 	   -outfmt 6 
-
-#outFilepath=${dir}/out/${strain}_${family}.blasttxt
-#blastn -db ${dbName}\
-#	   -query ${queryFilepath}\
-#	   -out ${outFilepath}\
-#	   -word_size 6\
-#	   -evalue 1e-3 
 

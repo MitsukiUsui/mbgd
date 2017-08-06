@@ -1,71 +1,52 @@
 import pandas as pd
 
-def output_count(cluster_df, strain_lst, countFilepath):
-	dct_lst=[]
-	for _,row in cluster_df.iterrows():
-		dct={}
-		dct["family"]=row["family"]
-		dct["lineage"]=row["lineage"]
-		dct["num_query"]=row["num_query"]
-		
-		msk=list(row[strain_lst].isnull())# True if the strain does not have the family
-		for i, strain in enumerate(strain_lst):
-			if msk[i]:
-				filepath="./result/{0}_{1}.tab".format(strain,row["family"])
-				dct[strain]=len(open(filepath, 'r').readlines())
-			else:
-				dct[strain]=-1 
-		dct_lst.append(dct)
-	count_df=pd.DataFrame(dct_lst)
-	count_df=count_df[["family"]+strain_lst+["lineage", "num_query"]]
-	count_df.to_csv(countFilepath,index=False)
-	print("DONE counting to {}".format(countFilepath))
+def main(lookupFilepath, strainFilepath):
+    lookup_df=pd.read_csv(lookupFilepath)
+    strain_lst=[s.strip() for s in open(strainFilepath, 'r').readlines()] 
+    for sstrain in strain_lst:
+        hitFilepath="./result/{}.tab".format(sstrain)
+        columns_lst=["qseqid", "sseqid", "pident", "length", "mismatch", "gapopen", "qstart", "qend", 
+                     "sstart","send", "evalue", "bitscore"]
+        hit_df=pd.read_csv(hitFilepath, delimiter='\t', header=None, names=columns_lst)
+        hit_df=hit_df.drop_duplicates()
 
-def output_strain(strain_lst, family_lst):
-	columns_lst=["qseqid", "sseqid", "pident", "length", "mismatch", "gapopen", 
-							 "qstart", "qend", "sstart","send", "evalue", "bitscore"]
+        #add qfamily column
+        dct_lst=[]
+        for _, row in  lookup_df[["family", sstrain]].iterrows():
+            if isinstance(row[sstrain],str):
+                lst=row[sstrain].split(' ')
+                for seqName in lst:
+                    dct={}
+                    dct["qfamily"]=row["family"]
+                    dct["qseqid"]=seqName
+                    dct_lst.append(dct)
+        tmp_df=pd.DataFrame(dct_lst)
+        out_df=pd.merge(hit_df, tmp_df, on="qseqid", how="left")
+        assert out_df["qfamily"].isnull().sum()==0
 
-	for strain in strain_lst:
-		strainFilepath="./out/{}.csv".format(strain)
-		dct_lst=[]
+        #add sstrain, qstrain, hit_strand columns
+        dct_lst=[]
+        for _,row in out_df.iterrows():
+            dct={}
+            dct["sstrain"]=sstrain
+            dct["qstrain"]=row["qseqid"].split(':')[0]
+            if row["sstart"]<row["send"]:
+                dct["hit_strand"]=1
+            else:
+                dct["hit_strand"]=-1
+            dct_lst.append(dct)
+        assert out_df.shape[0]==len(dct_lst)
+        tmp_df=pd.DataFrame(dct_lst, index=out_df.index)
+        out_df=pd.concat([out_df, tmp_df], axis=1)
+        out_df.index.name="region_id"
 
-		for family in family_lst:
-			filepath="./result/{0}_{1}.tab".format(strain,family)
-			try:
-				if len(open(filepath, 'r').readlines())>0:
-					df=pd.read_csv(filepath,delimiter='\t', header=None)
-					for _,row in df.iterrows():
-						dct={}
-						dct["qfamily"]=family
-						dct["qstrain"]=row[0].split(':')[0]
-						dct["sstrain"]=row[1].split(':')[0]
-						if row[8]<row[9]:
-							dct["hit_strand"]=1
-						else:
-							dct["hit_strand"]=-1
-						
-						for i,column in enumerate(columns_lst):
-							dct[column]=row[i]
-						dct_lst.append(dct)
-			except FileNotFoundError:
-				pass
-		
-		strain_df=pd.DataFrame(dct_lst)
-		strain_df=strain_df[["qfamily", "qstrain", "sstrain"]+columns_lst+["hit_strand"]]
-		strain_df.index.name="region_id"
-		strain_df.to_csv(strainFilepath)
-		print("DONE integration to {}".format(strainFilepath))
-	
+        outFilepath="./out/{}.csv".format(sstrain)
+        out_df.to_csv(outFilepath)
+        print("OUTPUT ot {}".format(outFilepath))
+
+
 
 if __name__=="__main__":
-	clusterFilepath="/home/mitsuki/altorf/mbgd/data/test_cluster.csv"
-	strainFilepath="/home/mitsuki/altorf/mbgd/data/strain.lst"
-   
-	strain_lst=[s.strip() for s in open(strainFilepath, 'r').readlines()]
-	cluster_df=pd.read_csv(clusterFilepath, dtype="object")
-
-	countFilepath="./out/test_count.csv"
-	output_count(cluster_df, strain_lst, countFilepath)
-
-	family_lst=list(cluster_df["family"])
-	#output_strain(strain_lst,family_lst)
+    lookupFilepath="./out/query_lookup.csv"
+    strainFilepath="/home/mitsuki/altorf/mbgd/data/ecoli/strain.lst"
+    main(lookupFilepath, strainFilepath)

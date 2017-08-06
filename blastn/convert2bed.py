@@ -37,5 +37,5 @@ def main(strainFilepath):
 
 	
 if __name__=="__main__":
-	strainFilepath="/home/mitsuki/altorf/mbgd/data/strain.lst"
+	strainFilepath="../data/streptomyces/strain.lst"
 	main(strainFilepath)
