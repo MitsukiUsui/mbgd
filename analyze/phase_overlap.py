@@ -1,3 +1,6 @@
+#!/home/mitsuki/.pyenv/versions/anaconda3-4.3.1/bin/python
+
+import sys
 import pandas as pd
 import math
 import numpy as np
@@ -70,8 +73,10 @@ def main(seqFilepath, overlapFilepath, outFilepath):
 
 
 if __name__=="__main__":
-    strain="eab"
-    seqFilepath="./out/{}_ovr.fasta".format(strain)
-    overlapFilepath="./out/{}_filtered.csv".format(strain)
-    outFilepath="./out/{}_relative.csv".format(strain)
+    #strain="eab"
+    strain=sys.argv[1]
+    direc="/home/mitsuki/altorf/mbgd/analyze/out"
+    seqFilepath=direc+"/{}_ovr.fasta".format(strain)
+    overlapFilepath=direc+"/{}_filtered.csv".format(strain)
+    outFilepath=direc+"/{}_relative.csv".format(strain)
     main(seqFilepath, overlapFilepath, outFilepath)

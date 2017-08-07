@@ -11,6 +11,6 @@ def main(strainFilepath):
         print("OUTPUT to {}".format(outFilepath))
 
 if __name__=="__main__":
-    #strainFilepath="/home/mitsuki/altorf/mbgd/data/ecoli/strain.lst"
-    strainFilepath="strain.lst"
+    strainFilepath="/home/mitsuki/altorf/mbgd/data/ecoli/strain.lst"
+    #strainFilepath="strain.lst"
     main(strainFilepath)
