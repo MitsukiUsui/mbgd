@@ -1,8 +1,9 @@
 IFS=$'\n'
 dir=/home/mitsuki/altorf/mbgd/analyze
 cmd=${dir}/calc_identity.sh
+#strainFilepath="strain.lst"
 #strainFilepath="../data/ecoli/strain.lst"
-strainFilepath="strain.lst"
+strainFilepath="/home/mitsuki/altorf/mbgd/data/streptomyces/strain.lst"
 
 for strain in `cat ${strainFilepath}`
 do

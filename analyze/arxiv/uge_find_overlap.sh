@@ -1,7 +1,8 @@
 IFS=$'\n'
 dir=/home/mitsuki/altorf/mbgd/analyze
 cmd=${dir}/find_overlap.sh
-strainFilepath="../data/ecoli/strain.lst"
+#strainFilepath="../data/ecoli/strain.lst"
+strainFilepath="/home/mitsuki/altorf/mbgd/data/streptomyces/strain.lst"
 
 for strain in `cat ${strainFilepath}`
 do

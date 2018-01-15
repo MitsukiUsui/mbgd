@@ -13,7 +13,7 @@ test/
 !*.cpp
 !*.h
 !*.sh
-!*.ipynb
+#!*.ipynb
 !*.md
 
 .ipynb_checkpoints

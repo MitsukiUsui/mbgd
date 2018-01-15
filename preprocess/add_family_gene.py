@@ -1,16 +1,23 @@
+#!/usr/bin/env python3
+
 import pandas as pd
 import re
+import sys
+import os
 
-def main(clusterFilepath,strainFilepath):
+def main(target, clusterFilepath,strainFilepath):
     #load cluster_df    
     cluster_df=pd.read_csv(clusterFilepath, delimiter='\t', dtype="object")
-
     strain_lst=[s.strip() for s in open(strainFilepath, 'r').readlines()]
+    inDirec="/data/mitsuki/data/mbgd/gene"
+    outDirec="/data/mitsuki/data/mbgd/{}/gene".format(target)
+    os.makedirs(outDirec, exist_ok=True)
+    
     for strain in strain_lst:
-        print("PROCESSING {}".format(strain))
-        filepath="/data/mitsuki/data/mbgd/gene/{}.gene".format(strain)
-        gene_df=pd.read_csv(filepath, delimiter='\t', header=None)
+        print("START: process {}".format(strain))
         
+        inFilepath="{}/{}.gene".format(inDirec, strain)
+        gene_df=pd.read_csv(inFilepath, delimiter='\t', header=None)
         gene_lst=list(set(gene_df[1]))
         
         #initialize dictionary with empty set
@@ -29,23 +36,26 @@ def main(clusterFilepath,strainFilepath):
 
         #create lookup_df from gene2family_dct
         dct_lst=[]
-        count=0
-        
         for gene in gene_lst:
             dct={}
             dct[1]=gene
             if len(gene2family_dct[gene])>0:
                 dct["family"]=','.join(list(gene2family_dct[gene]))
-                count+=1
             dct_lst.append(dct)
         lookup_df=pd.DataFrame(dct_lst)
-        gene_df=pd.merge(gene_df[gene_df.columns[:16]], lookup_df, on=1, how="left")
-        gene_df.to_csv(filepath, index=False,header=None,sep='\t')
-        print("\tadded family to {}/{} genes".format(count, len(gene_lst)))
-              
+        
+        # join lookup_df to gene_df
+        gene_df=pd.merge(gene_df, lookup_df, on=1, how="left")
+        print("\tadded family to {}/{} genes".format((~gene_df["family"].isnull()).sum(),  gene_df.shape[0]))
+        
+        # output
+        outFilepath="{}/{}.gene".format(outDirec, strain)
+        gene_df.to_csv(outFilepath, index=False,header=None,sep='\t')
+        print("\tDONE: output to {}".format(outFilepath))
 
 if __name__=="__main__":
-    direc="../data/ecoli"
-    clusterFilepath=direc+"/ecoli_cluster.tab"
-    strainFilepath=direc+"/strain.lst"
-    main(clusterFilepath, strainFilepath)
+    target=sys.argv[1]
+    direc="/home/mitsuki/altorf/mbgd/data/{}".format(target)
+    clusterFilepath="{}/cluster.tsv".format(direc)
+    strainFilepath="{}/strain.lst".format(direc)
+    main(target, clusterFilepath, strainFilepath)

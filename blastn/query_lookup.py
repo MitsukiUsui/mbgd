@@ -1,29 +1,29 @@
+#!/usr/bin/env python3
+
 from ete3 import Tree
 import pandas as pd
 import numpy as np
 import re
+import sys
 
 def main(clusterFilepath, strainFilepath, phbFilepath, outFilepath):
-    cluster_df=pd.read_csv(clusterFilepath, dtype="object")
+    cluster_df=pd.read_csv(clusterFilepath, delimiter='\t', dtype="object")
     strain_lst=[s.strip() for s in open(strainFilepath, 'r').readlines()]
     t=Tree(phbFilepath)
   
-    print("Calc distance matrix")
+    print("START: calc distance matrix between {} strain".format(len(strain_lst)))
     distance_mat=-np.ones((len(strain_lst), len(strain_lst)))
     for i, node1 in enumerate(strain_lst):
         for j, node2 in enumerate(strain_lst):
             if i!=j:
                 distance_mat[i,j]=t.get_distance(node1, node2)
 
-        
     pattern = r"([^()]+)(\([0-9]+\))?"
     r=re.compile(pattern)
 
+    print("START: create query lookup table".format(len(strain_lst)))
     dct_lst=[]
     for _, row in cluster_df.iterrows():
-        if _%100==0:
-            print(_)
-
         dct={}
         dct["family"]=row["family"]
 
@@ -44,13 +44,14 @@ def main(clusterFilepath, strainFilepath, phbFilepath, outFilepath):
     out_df=pd.DataFrame(dct_lst)
     out_df=out_df[["family"]+strain_lst]
     out_df.to_csv(outFilepath, index=False)
-    print("OUTPUT to {}".format(outFilepath))
-
+    print("DONE: output table to {}".format(outFilepath))
 
 if __name__=="__main__":
-    direc="../data/ecoli"
-    clusterFilepath=direc+"/ecoli_cluster.csv"
-    strainFilepath=direc+"/strain.lst"
-    phbFilepath=direc+"/tax562.phb"
-    outFilepath="./out/query_lookup.csv"
+    target=sys.argv[1]
+    direc="../data/{}".format(target)
+    
+    clusterFilepath="{}/cluster.tsv".format(direc)
+    strainFilepath="{}/strain.lst".format(direc)
+    phbFilepath="{}/cluster.phb".format(direc)
+    outFilepath="{}/query_lookup.csv".format(direc)
     main(clusterFilepath, strainFilepath, phbFilepath, outFilepath)

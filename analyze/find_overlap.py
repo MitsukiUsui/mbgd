@@ -1,7 +1,8 @@
-#!/home/mitsuki/.pyenv/versions/anaconda3-4.3.1/bin/python
+#!/usr/bin/env python3
 
 import math
 import sys
+import os
 import numpy as np
 import pandas as pd
 
@@ -168,8 +169,12 @@ def main(strain, hitFilepath, geneFilepath, overlapFilepath):
 
 
 if __name__=="__main__":
-    strain=sys.argv[1]
-    hitFilepath="/home/mitsuki/altorf/mbgd/blastn/out/{}.csv".format(strain)
-    geneFilepath="/data/mitsuki/data/mbgd/gene/{}.gene".format(strain)
-    overlapFilepath="/home/mitsuki/altorf/mbgd/analyze/out/{}_ovr.csv".format(strain)
+    target=sys.argv[1]
+    strain=sys.argv[2]
+    
+    hitFilepath="/home/mitsuki/altorf/mbgd/blastn/result/{}/{}.csv".format(target, strain)
+    geneFilepath="/data/mitsuki/data/mbgd/{}/gene/{}.gene".format(target, strain)
+    outDirec="./out/{}".format(target)
+    os.makedirs(outDirec, exist_ok=True)
+    overlapFilepath="{}/{}_ovr.csv".format(outDirec, strain)
     main(strain,hitFilepath, geneFilepath, overlapFilepath)
